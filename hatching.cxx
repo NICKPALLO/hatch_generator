@@ -42,6 +42,10 @@ std::vector<Line_2> hatching(const std::vector<Point_2>& contour, int angle, dou
 	{
 		throw std::runtime_error("contour is empty");
 	}
+	if (contour.size() != 4)
+	{
+		throw std::runtime_error("contour is not a rectangle");
+	}
 	if (h <= 0)
 	{
 		throw std::runtime_error("wrong step");
