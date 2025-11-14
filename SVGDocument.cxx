@@ -1,3 +1,7 @@
+module;
+#include <stdexcept>
+#include <fstream>
+#include <string>
 module SVGDocument;
 
 SVGDoc::SVGDoc(const std::string& dir_) : dir(dir_)
@@ -45,7 +49,13 @@ void SVGDoc::saveAndClose()
 
 void SVGDoc::openDoc()
 {
-
+#if defined(_WIN32)
+	system(("start " + dir).c_str());
+#elif defined(__APPLE__)
+	system(("open " + dir).c_str());
+#elif defined(__linux__)
+	system(("xdg-open " + dir).c_str());
+#endif
 }
 
 SVGDoc::~SVGDoc()

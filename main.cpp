@@ -1,55 +1,85 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <fstream>
 
 import hatching;
 
 import SVGDocument;
 
 
-
-int main()
+/**
+ * @brief Выводит линию в стандартный поток вывода.
+ *
+ * @param line Линия для вывода.
+ * @param line_num Индекс линии.
+ *        Если равен -1 (значение по умолчанию), индекс не выводится.
+ *        В противном случае выводится и линия, и её индекс.
+ */
+void showLine(const Line_2& line, int line_num = -1)
 {
-	//исходные данные
-	std::vector<std::vector<Point_2>> contoursPoints = {
-		{ {0,0}, {100,0}, {100,100}, {0,100} }
-	};
-	double angle = 45;
-	double h = 20;
-
-	SVGDoc doc("../../../test.xml");
-
-	for (int cur_cont = 0; cur_cont < contoursPoints.size(); ++cur_cont)
+	std::cout << "Line";
+	if (line_num != -1)
 	{
-		std::vector<Line_2> hatch = hatching(contoursPoints[cur_cont], angle, h);
+		std::cout << " " << line_num;
+	}
+	std::cout << ": (" << line.first_point.x << ',' << line.first_point.y;
+	std::cout << ") -> (" << line.second_point.x << ',' << line.second_point.y << ")\n";
+}
 
-		for (const auto& line : hatch)
+int main(int argc, char* argv[])
+{
+	int angle = 45;
+	double h = 10;
+	for (int i = 1; i < argc; ++i)
+	{
+		std::string arg = argv[i];
+		if (arg == "--angle" && i + 1 < argc)
 		{
-			doc.addLine(line);
+			angle = std::stoi(argv[++i]);
 		}
-		
-		for (int point = 0; point < contoursPoints[cur_cont].size(); ++point)
+		else if (arg == "--step" && i + 1 < argc)
 		{
-			auto p1 = contoursPoints[cur_cont][point];
-			auto p2 = contoursPoints[cur_cont][(point + 1) % contoursPoints[cur_cont].size()];
-
-
-			doc.addLine({ p1 ,p2 });
+			h = std::stoi(argv[++i]);
+		}
+		else
+		{
+			std::cout << "Unknown flag: " << arg;
 		}
 	}
-	doc.saveAndClose();
+
+
+	try {
+		std::vector<std::vector<Point_2>> contoursPoints = {
+			{ {0,0}, {100,0}, {100,100}, {0,100} }, { { 110,100 },{160,100},{160,150},{110,150} }
+		};
+
+		SVGDoc doc("../../../test.xml");
+
+		for (const auto& current_cont : contoursPoints)
+		{
+			std::vector<Line_2> hatch = hatching(current_cont, angle, h);
+
+			for (int i = 0; i < hatch.size(); ++i)
+			{
+				doc.addLine(hatch[i]);
+				showLine(hatch[i],i+1);
+			}
+			std::cout << std::endl;
+
+			for (int point = 0; point < current_cont.size(); ++point)
+			{
+				auto p1 = current_cont[point];
+				auto p2 = current_cont[(point + 1) % current_cont.size()];
+				doc.addLine({ p1 ,p2 });
+			}
+		}
+		doc.saveAndClose();
+		doc.openDoc();
+	}
+	catch (const std::exception& ex)
+	{
+		std::cout << ex.what();
+	}
 
 	return 0;
 }
-
-
-
-
-
-
-//for (int i = 0; i < hatch.size(); ++i)
-//{
-//	std::cout << "Line " << i + 1 << ": (" << hatch[i].first_point.x << ',' << hatch[i].first_point.y;
-//	std::cout << ") -> (" << hatch[i].second_point.x << ',' << hatch[i].second_point.y << ")\n";
-//}
