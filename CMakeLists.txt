@@ -12,11 +12,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(SOURCES
-main.cpp
-hatching.cpp
-SVGDocument.cpp
+src/main.cpp
+src/hatching.cpp
+src/SVGDocument.cpp
 )
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/includes)
 
 add_executable(hatch_generator ${SOURCES})
 
