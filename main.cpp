@@ -20,9 +20,9 @@
 #include <vector>
 #include <string>
 
-import hatching;
+#include "hatching.h"
+#include "SVGDocument.h"
 
-import SVGDocument;
 
 extern template class std::vector<Point_2>;
 extern template class std::vector<Line_2>;
