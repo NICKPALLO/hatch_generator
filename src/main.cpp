@@ -19,6 +19,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <charconv>
+#include <cstring>
+
 
 #include "hatching.h"
 #include "SVGDocument.h"
@@ -66,27 +69,36 @@ void showLine(const Line_2& line, int line_num = -1)
  */
 int main(int argc, char* argv[])
 {
-	int angle = 45;
-	double h = 10;
-	for (int i = 1; i < argc; ++i)
-	{
-        std::string_view arg = argv[i];
-		if (arg == "--angle" && i + 1 < argc)
-		{
-			angle = std::stoi(argv[++i]);
-		}
-		else if (arg == "--step" && i + 1 < argc)
-		{
-			h = std::stoi(argv[++i]);
-		}
-		else
-		{
-			std::cout << "Unknown flag: " << arg;
-		}
-	}
+    try {
+        int angle = 45;
+        double h = 10;
+        for (int i = 1; i < argc; ++i)
+        {
+            std::string_view arg = argv[i];
+            if (arg == "--angle" && i + 1 < argc)
+            {
+                ++i;
+                auto res = std::from_chars(argv[i], argv[i] + strlen(argv[i]), angle);
+                if(res.ec != std::errc())
+                {
+                    throw std::runtime_error("Ошибка преобразования angle");
+                }
+            }
+            else if (arg == "--step" && i + 1 < argc)
+            {
+                ++i;
+                auto res = std::from_chars(argv[i], argv[i] + strlen(argv[i]), h);
+                if(res.ec != std::errc())
+                {
+                    throw std::runtime_error("Ошибка преобразования step");
+                }
+            }
+            else
+            {
+                std::cout << "Unknown flag: " << arg;
+            }
+        }
 
-
-	try {
 		std::vector<std::vector<Point_2>> contoursPoints = {
 			{ {0,0}, {100,0}, {100,100}, {0,100} }, { { 110,100 },{160,100},{160,150},{110,150} }
 		};
@@ -113,7 +125,7 @@ int main(int argc, char* argv[])
 		}
 		doc.saveAndClose();
 		doc.openDoc();
-	}
+    }
 	catch (const std::exception& ex)
 	{
 		std::cout << ex.what();
